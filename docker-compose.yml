@@ -18,6 +18,7 @@ services:
     container_name: server_php
     volumes:
       - ./sites:/var/www/html
+      - ./php.ini:/usr/local/etc/php/php.ini
     restart: always
     build:
       context: .
@@ -41,7 +42,7 @@ services:
     volumes:
       - ./certs:/etc/letsencrypt
       - ./nginx:/etc/nginx/conf.d
-    entrypoint: "/bin/bash"
+    command: certonly --standalone --preferred-challenges http
     restart: always
     
 volumes:
