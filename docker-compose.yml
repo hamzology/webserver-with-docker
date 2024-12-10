@@ -1,0 +1,49 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: server_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./sites:/var/www/html
+      - ./certs:/etc/nginx/ssl
+    depends_on:
+      - php
+    restart: always
+
+  php:
+    image: php:8.1-fpm
+    container_name: server_php
+    volumes:
+      - ./sites:/var/www/html
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.php
+
+  mysql:
+    image: mysql:8.0
+    container_name: server_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: joomla_db
+      MYSQL_USER: joomla_user
+      MYSQL_PASSWORD: user_password
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./nginx:/etc/nginx/conf.d
+    entrypoint: "/bin/bash"
+    restart: always
+    
+volumes:
+  mysql_data:
+  certs:
